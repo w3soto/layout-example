@@ -1,0 +1,238 @@
+@if (headerItems().length) {
+  <!-- Header items stay pinned above the scrollable list. -->
+  <nav class="side-menu__header" aria-label="Header navigation">
+    <ul class="side-menu__list">
+      @for (item of headerItems(); track item) {
+        <ng-container *ngTemplateOutlet="menuItem; context: { $implicit: item }"/>
+      }
+    </ul>
+  </nav>
+}
+
+<nav class="side-menu__nav" aria-label="Main navigation" (scroll)="onNavScroll()">
+  <ul class="side-menu__list">
+    @for (item of items(); track item) {
+      <ng-container *ngTemplateOutlet="menuItem; context: { $implicit: item }"/>
+    }
+  </ul>
+</nav>
+
+@if (footerItems().length) {
+  <!-- Footer items stay pinned below the scrollable list. -->
+  <nav class="side-menu__footer" aria-label="Footer navigation">
+    <ul class="side-menu__list">
+      @for (item of footerItems(); track item) {
+        <ng-container *ngTemplateOutlet="menuItem; context: { $implicit: item }"/>
+      }
+    </ul>
+  </nav>
+}
+
+<ng-template #separator let-entry let-sub="sub">
+  <li
+    class="side-menu__separator"
+    [class.side-menu__separator--sub]="sub"
+    [class.side-menu__separator--labeled]="!!entry.label"
+    role="separator"
+    [attr.aria-label]="entry.label || null"
+  >
+    @if (entry.label) {
+      <span class="side-menu__separator-label">{{ entry.label }}</span>
+    }
+  </li>
+</ng-template>
+
+<ng-template #menuItem let-item>
+  @if (item.separator) {
+    <ng-container *ngTemplateOutlet="separator; context: { $implicit: item }"/>
+  } @else {
+    @let open = isOpen(item);
+    @let hasChildren = !!item.children?.length;
+    @let isLink = !!item.routerLink;
+    <li
+      class="side-menu__list-item"
+      [class.side-menu__list-item--open]="open"
+      [class.side-menu__list-item--active]="isChildActive(item)"
+      [class.side-menu__list-item--flyout-closed]="closedFlyout() === item"
+      (mouseenter)="positionFlyout($event)"
+      (focusin)="positionFlyout($event)"
+      (mouseleave)="resetFlyout(item, $event); clearHovered()"
+      (focusout)="resetFlyout(item, $event)"
+    >
+      <div class="side-menu__button-wrap">
+      @if (isLink) {
+        <a
+          class="side-menu__button"
+          [routerLink]="item.routerLink"
+          [queryParams]="item.queryParams"
+          [queryParamsHandling]="item.queryParamsHandling"
+          [fragment]="item.fragment"
+          [preserveFragment]="!!item.preserveFragment"
+          [state]="item.state"
+          [info]="item.info"
+          [relativeTo]="item.relativeTo"
+          [skipLocationChange]="!!item.skipLocationChange"
+          [replaceUrl]="!!item.replaceUrl"
+          [browserUrl]="item.browserUrl"
+          [target]="item.target"
+          routerLinkActive="side-menu__button--active"
+          [routerLinkActiveOptions]="activeOptions(item, hasChildren)"
+          [attr.aria-label]="mini() ? item.label : null"
+          (click)="onItemClick(item, $event)"
+        >
+          <ng-container *ngTemplateOutlet="buttonContent; context: { $implicit: item }"/>
+          @if (hasChildren) {
+            <!-- The arrow only toggles: no command, navigation or menuItemClick. -->
+            <span
+              class="side-menu__caret"
+              aria-hidden="true"
+              (click)="onToggleClick(item, $event)"
+            >
+                <i
+                  class="side-menu__chevron pi pi-chevron-right"
+                  [class.side-menu__chevron--open]="open"
+                ></i>
+              </span>
+          }
+        </a>
+      } @else {
+        <!-- Button item: the whole row expands/collapses its sub items (if any). -->
+        <button
+          type="button"
+          class="side-menu__button"
+          [attr.aria-expanded]="hasChildren && !mini() ? open : null"
+          [attr.aria-controls]="hasChildren ? submenuId(item) : null"
+          [attr.aria-label]="mini() ? item.label : null"
+          (click)="onItemClick(item, $event); onButtonClick(item)"
+        >
+          <ng-container *ngTemplateOutlet="buttonContent; context: { $implicit: item }"/>
+          @if (hasChildren) {
+            <!-- The arrow only toggles: no command, navigation or menuItemClick. -->
+            <span
+              class="side-menu__caret"
+              aria-hidden="true"
+              (click)="onToggleClick(item, $event)"
+            >
+                <i
+                  class="side-menu__chevron pi pi-chevron-right"
+                  [class.side-menu__chevron--open]="open"
+                ></i>
+              </span>
+          }
+        </button>
+      }
+      </div>
+
+      @if (hasChildren) {
+        <!-- Inline sub items (expanded mode); animates closed when switching to mini mode. -->
+        <div class="side-menu__submenu" [id]="submenuId(item)" [inert]="mini() || !open">
+          <div class="side-menu__sublist-wrap">
+            <ng-container *ngTemplateOutlet="sublist; context: { $implicit: item }"/>
+          </div>
+        </div>
+      }
+      @if (mini()) {
+        <!-- Mini mode flyout: title + sub items, or just a clickable label. -->
+        <div
+          class="side-menu__flyout"
+          [class.side-menu__flyout--label]="!hasChildren"
+          [attr.aria-hidden]="hasChildren ? null : 'true'"
+          (click)="onFlyoutClick(item, $event)"
+        >
+          <div class="side-menu__flyout-panel">
+            @if (hasChildren) {
+              <ng-container *ngTemplateOutlet="flyoutTitle; context: { $implicit: item }"/>
+              <ng-container *ngTemplateOutlet="sublist; context: { $implicit: item }"/>
+            } @else {
+              <ng-container
+                *ngTemplateOutlet="flyoutTitle; context: { $implicit: item, tabindex: -1 }"
+              />
+            }
+          </div>
+        </div>
+      }
+    </li>
+  }
+</ng-template>
+
+<ng-template #buttonContent let-item>
+  <i class="side-menu__icon {{ item.icon }}" aria-hidden="true"></i>
+  <span class="side-menu__label">{{ item.label }}</span>
+</ng-template>
+
+<ng-template #sublist let-item>
+  <ul class="side-menu__sublist">
+    @for (child of item.children; track child) {
+      @if (child.separator) {
+        <ng-container *ngTemplateOutlet="separator; context: { $implicit: child, sub: true }"/>
+      } @else if (child.routerLink) {
+        <li class="side-menu__sublist-item">
+          <a
+            class="side-menu__subbutton"
+            [routerLink]="child.routerLink"
+            [queryParams]="child.queryParams"
+            [queryParamsHandling]="child.queryParamsHandling"
+            [fragment]="child.fragment"
+            [preserveFragment]="!!child.preserveFragment"
+            [state]="child.state"
+            [info]="child.info"
+            [relativeTo]="child.relativeTo"
+            [skipLocationChange]="!!child.skipLocationChange"
+            [replaceUrl]="!!child.replaceUrl"
+            [browserUrl]="child.browserUrl"
+            [target]="child.target"
+            routerLinkActive="side-menu__subbutton--active"
+            [routerLinkActiveOptions]="activeOptions(child, false)"
+            (click)="onItemClick(child, $event)"
+          >
+            <ng-container *ngTemplateOutlet="subContent; context: { $implicit: child }"/>
+          </a>
+        </li>
+      } @else {
+        <li class="side-menu__sublist-item">
+          <button
+            type="button"
+            class="side-menu__subbutton side-menu__subbutton--button"
+            (click)="onItemClick(child, $event)"
+          >
+            <ng-container *ngTemplateOutlet="subContent; context: { $implicit: child }"/>
+          </button>
+        </li>
+      }
+    }
+  </ul>
+</ng-template>
+
+<ng-template #subContent let-child>
+  @if (child.icon) {
+    <i class="side-menu__subicon {{ child.icon }}" aria-hidden="true"></i>
+  }
+  <span class="side-menu__sublabel">{{ child.label }}</span>
+</ng-template>
+
+<ng-template #flyoutTitle let-item let-tabindex="tabindex">
+  @if (item.routerLink) {
+    <a
+      class="side-menu__submenu-title side-menu__submenu-title--link"
+      [routerLink]="item.routerLink"
+      [queryParams]="item.queryParams"
+      [queryParamsHandling]="item.queryParamsHandling"
+      [fragment]="item.fragment"
+      [preserveFragment]="!!item.preserveFragment"
+      [state]="item.state"
+      [info]="item.info"
+      [relativeTo]="item.relativeTo"
+      [skipLocationChange]="!!item.skipLocationChange"
+      [replaceUrl]="!!item.replaceUrl"
+      [browserUrl]="item.browserUrl"
+      [target]="item.target"
+      routerLinkActive="side-menu__submenu-title--active"
+      [routerLinkActiveOptions]="activeOptions(item, true)"
+      [attr.tabindex]="tabindex"
+      (click)="onItemClick(item, $event)"
+    >{{ item.label }}</a
+    >
+  } @else {
+    <span class="side-menu__submenu-title">{{ item.label }}</span>
+  }
+</ng-template>

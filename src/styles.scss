@@ -1,0 +1,12 @@
+@use 'app/layout/variables' as *;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: $app-layout-font-family;
+  background: $app-layout-content-bg;
+}

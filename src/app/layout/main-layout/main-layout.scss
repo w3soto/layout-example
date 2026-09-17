@@ -1,0 +1,108 @@
+@use '../variables' as *;
+
+.main-layout {
+  display: grid;
+  grid-template-areas:
+    'topbar topbar'
+    'sidebar content';
+  grid-template-rows: $app-layout-topbar-height 1fr;
+  grid-template-columns: $app-layout-sidebar-width 1fr;
+  height: 100vh;
+  height: 100dvh;
+  font-family: $app-layout-font-family;
+  transition: grid-template-columns $app-layout-transition-duration $app-layout-transition-easing;
+
+  &--mini {
+    grid-template-columns: $app-layout-sidebar-mini-width 1fr;
+  }
+
+  &__topbar {
+    grid-area: topbar;
+    z-index: $app-layout-sidebar-z-index + 1;
+  }
+
+  &__sidebar {
+    grid-area: sidebar;
+    min-height: 0;
+  }
+
+  &__content {
+    grid-area: content;
+    min-width: 0;
+    padding: $app-layout-content-padding;
+    overflow: auto;
+    background: $app-layout-content-bg;
+
+    @media (max-width: $app-layout-mobile-breakpoint) {
+      padding: $app-layout-content-padding-mobile;
+    }
+  }
+
+  &__backdrop {
+    position: fixed;
+    inset: $app-layout-topbar-height 0 0 0;
+    z-index: $app-layout-backdrop-z-index;
+    background: $app-layout-backdrop-bg;
+
+    &--enter {
+      animation: main-layout-fade-in $app-layout-transition-duration $app-layout-transition-easing;
+    }
+
+    &--leave {
+      animation: main-layout-fade-in $app-layout-transition-duration $app-layout-transition-easing reverse forwards;
+    }
+  }
+
+  // Small screens: the sidebar becomes an overlay sliding in from the left.
+  &--mobile {
+    grid-template-columns: 0 1fr;
+
+    .main-layout__sidebar {
+      position: fixed;
+      inset-block: $app-layout-topbar-height 0;
+      inset-inline-start: 0;
+      z-index: $app-layout-sidebar-z-index;
+      width: $app-layout-sidebar-overlay-width;
+      max-width: 85vw;
+      transform: translateX(-100%);
+      visibility: hidden;
+      transition:
+        transform $app-layout-transition-duration $app-layout-transition-easing,
+        visibility 0s linear $app-layout-transition-duration;
+    }
+  }
+
+  &--open .main-layout__sidebar {
+    transform: none;
+    visibility: visible;
+    box-shadow: $app-layout-flyout-shadow;
+    transition-delay: 0s;
+  }
+
+  // Breakpoint switch: jump straight to the new sidebar state instead of animating to it.
+  &--no-transition {
+    &,
+    .main-layout__sidebar,
+    .main-layout__sidebar * {
+      transition: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &,
+    &__sidebar {
+      transition: none !important;
+    }
+
+    &__backdrop--enter,
+    &__backdrop--leave {
+      animation: none;
+    }
+  }
+}
+
+@keyframes main-layout-fade-in {
+  from {
+    opacity: 0;
+  }
+}

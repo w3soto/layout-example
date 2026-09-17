@@ -1,0 +1,64 @@
+@use '../variables' as *;
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: $app-layout-topbar-gap;
+  height: $app-layout-topbar-height;
+  padding-inline: $app-layout-topbar-padding-x;
+  background: $app-layout-topbar-bg;
+  color: $app-layout-topbar-color;
+  font-size: $app-layout-topbar-font-size;
+
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: $app-layout-item-radius;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color $app-layout-transition-duration $app-layout-transition-easing;
+
+    &:hover,
+    &:focus-visible {
+      background: $app-layout-topbar-hover-bg;
+    }
+  }
+
+  &__toggle-icon {
+    font-size: $app-layout-icon-size;
+  }
+
+  &__title {
+    font-weight: $app-layout-title-font-weight;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $app-layout-item-gap;
+    margin-inline-start: auto;
+  }
+
+  &__user {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: $app-layout-item-font-size;
+  }
+
+  &__user-icon {
+    font-size: $app-layout-icon-size;
+  }
+
+  @media (max-width: $app-layout-mobile-breakpoint) {
+    &__user-name {
+      display: none;
+    }
+  }
+}

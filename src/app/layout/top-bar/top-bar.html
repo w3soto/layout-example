@@ -1,0 +1,21 @@
+<button
+  type="button"
+  class="top-bar__toggle"
+  aria-label="Toggle navigation"
+  [attr.aria-expanded]="layout.isMobile() ? layout.mobileOpen() : !layout.mini()"
+  (click)="layout.toggle()"
+>
+  <i class="top-bar__toggle-icon pi pi-bars" aria-hidden="true"></i>
+</button>
+
+<span class="top-bar__title">eVat Spectrum</span>
+
+<div class="top-bar__actions">
+  <ng-content />
+  @if (userName()) {
+    <span class="top-bar__user">
+      <i class="top-bar__user-icon pi pi-user" aria-hidden="true"></i>
+      <span class="top-bar__user-name">JH</span>
+    </span>
+  }
+</div>

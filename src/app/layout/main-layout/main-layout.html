@@ -1,0 +1,25 @@
+<app-top-bar class="main-layout__topbar">
+  <ng-content select="[layoutActions]" />
+</app-top-bar>
+
+<app-side-menu
+  class="main-layout__sidebar"
+  [items]="items()"
+  [footerItems]="footerItems()"
+  [mini]="layoutService.mini() && !layoutService.isMobile()"
+  [(expandedMenuItems)]="expandedMenuItems"
+/>
+
+@if (layoutService.isMobile() && layoutService.mobileOpen()) {
+  <div
+    class="main-layout__backdrop"
+    animate.enter="main-layout__backdrop--enter"
+    animate.leave="main-layout__backdrop--leave"
+    aria-hidden="true"
+    (click)="layoutService.closeMobile()"
+  ></div>
+}
+
+<main class="main-layout__content">
+  <router-outlet />
+</main>
