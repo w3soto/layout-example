@@ -1,0 +1,69 @@
+// Dark theme: the color tokens in `_variables.scss` are CSS custom properties, so a theme only
+// redefines the properties. The light theme needs no block of its own — its values are the
+// fallbacks baked into those tokens.
+//
+// `app-layout-theme()` is emitted once, from `main-layout.scss`.
+
+// Dark palette. Overridable like the light tokens:
+// `@use 'app/layout/theme' with ($app-layout-dark-sidebar-bg: #000);`
+$app-layout-dark-topbar-bg: #7c2d12 !default;
+$app-layout-dark-topbar-color: #fff !default;
+$app-layout-dark-topbar-hover-bg: rgb(255 255 255 / 0.15) !default;
+$app-layout-dark-sidebar-bg: #1e293b !default;
+$app-layout-dark-sidebar-border: #334155 !default;
+$app-layout-dark-item-color: #e2e8f0 !default;
+$app-layout-dark-item-disabled-color: #64748b !default;
+$app-layout-dark-item-hover-bg: #334155 !default;
+$app-layout-dark-item-hover-color: #f8fafc !default;
+$app-layout-dark-item-active-bg: #fd5108 !default;
+$app-layout-dark-item-active-color: #fff !default;
+$app-layout-dark-subitem-color: #e2e8f0 !default;
+$app-layout-dark-separator-label-color: #94a3b8 !default;
+$app-layout-dark-flyout-bg: #1e293b !default;
+$app-layout-dark-flyout-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.5) !default;
+$app-layout-dark-content-bg: #0f172a !default;
+$app-layout-dark-content-color: #e2e8f0 !default;
+$app-layout-dark-backdrop-bg: rgb(2 6 23 / 0.6) !default;
+$app-layout-dark-scrollbar-thumb: #475569 !default;
+
+@mixin dark-tokens {
+  // Themes the browser's own UI too: scrollbars, form controls, the canvas behind the page.
+  color-scheme: dark;
+
+  --app-layout-topbar-bg: #{$app-layout-dark-topbar-bg};
+  --app-layout-topbar-color: #{$app-layout-dark-topbar-color};
+  --app-layout-topbar-hover-bg: #{$app-layout-dark-topbar-hover-bg};
+  --app-layout-sidebar-bg: #{$app-layout-dark-sidebar-bg};
+  --app-layout-sidebar-border: #{$app-layout-dark-sidebar-border};
+  --app-layout-header-bg: #{$app-layout-dark-sidebar-bg};
+  --app-layout-footer-bg: #{$app-layout-dark-sidebar-bg};
+  --app-layout-item-color: #{$app-layout-dark-item-color};
+  --app-layout-item-disabled-color: #{$app-layout-dark-item-disabled-color};
+  --app-layout-item-hover-bg: #{$app-layout-dark-item-hover-bg};
+  --app-layout-item-hover-color: #{$app-layout-dark-item-hover-color};
+  --app-layout-item-active-bg: #{$app-layout-dark-item-active-bg};
+  --app-layout-item-active-color: #{$app-layout-dark-item-active-color};
+  --app-layout-subitem-color: #{$app-layout-dark-subitem-color};
+  --app-layout-separator-color: #{$app-layout-dark-sidebar-border};
+  --app-layout-separator-label-color: #{$app-layout-dark-separator-label-color};
+  --app-layout-flyout-bg: #{$app-layout-dark-flyout-bg};
+  --app-layout-flyout-shadow: #{$app-layout-dark-flyout-shadow};
+  --app-layout-content-bg: #{$app-layout-dark-content-bg};
+  --app-layout-content-color: #{$app-layout-dark-content-color};
+  --app-layout-backdrop-bg: #{$app-layout-dark-backdrop-bg};
+  --app-layout-scrollbar-thumb: #{$app-layout-dark-scrollbar-thumb};
+}
+
+@mixin app-layout-theme {
+  // `LayoutService` writes `data-theme`. Until it does (and with JS disabled) the system
+  // preference decides, and `data-theme="light"` opts back out of it.
+  :root[data-theme='dark'] {
+    @include dark-tokens;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      @include dark-tokens;
+    }
+  }
+}

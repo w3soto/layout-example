@@ -45,6 +45,26 @@
     margin-inline-start: auto;
   }
 
+  &__theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: $app-layout-item-radius;
+    background: transparent;
+    color: inherit;
+    font-size: $app-layout-item-font-size;
+    cursor: pointer;
+    transition: background-color $app-layout-transition-duration $app-layout-transition-easing;
+
+    &:hover,
+    &:focus-visible {
+      background: $app-layout-topbar-hover-bg;
+    }
+  }
+
   &__font-size {
     display: inline-flex;
     align-items: center;

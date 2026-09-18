@@ -16,6 +16,13 @@ export const LAYOUT_MOBILE_QUERY = new InjectionToken<string>('LAYOUT_MOBILE_QUE
   factory: () => '(max-width: 768px)',
 });
 
+/** Media query matching the system dark preference; keep in sync with `_theme.scss`. */
+export const LAYOUT_DARK_QUERY = new InjectionToken<string>('LAYOUT_DARK_QUERY', {
+  factory: () => '(prefers-color-scheme: dark)',
+});
+
+export type LayoutTheme = 'light' | 'dark';
+
 /** Smallest, largest, default and step of the base font size, in px. */
 export const LAYOUT_MIN_FONT_SIZE = 10;
 export const LAYOUT_MAX_FONT_SIZE = 20;
@@ -28,6 +35,14 @@ export class LayoutService {
   private readonly mediaQuery = inject(DOCUMENT).defaultView?.matchMedia?.(
     inject(LAYOUT_MOBILE_QUERY),
   );
+  private readonly darkQuery = inject(DOCUMENT).defaultView?.matchMedia?.(
+    inject(LAYOUT_DARK_QUERY),
+  );
+
+  /** The system preference, kept up to date; used until the user picks a theme. */
+  private readonly systemTheme = signal<LayoutTheme>(this.darkQuery?.matches ? 'dark' : 'light');
+  /** The user's choice, or `null` while the system preference is still in charge. */
+  private readonly chosenTheme = signal<LayoutTheme | null>(null);
 
   readonly isMobile = signal(this.mediaQuery?.matches ?? false);
   readonly mini = signal(false);
@@ -48,6 +63,12 @@ export class LayoutService {
   readonly canShrinkFont = computed(() => this.fontSize() > LAYOUT_MIN_FONT_SIZE);
   readonly canGrowFont = computed(() => this.fontSize() < LAYOUT_MAX_FONT_SIZE);
 
+  /** The theme in effect: the user's choice, else the system preference. */
+  readonly theme = computed<LayoutTheme>(() => this.chosenTheme() ?? this.systemTheme());
+  readonly isDark = computed(() => this.theme() === 'dark');
+  /** True while the theme still follows the system preference. */
+  readonly followsSystemTheme = computed(() => this.chosenTheme() === null);
+
   private readonly window = inject(DOCUMENT).defaultView;
   private frame = 0;
 
@@ -59,8 +80,14 @@ export class LayoutService {
       this.endBreakpointChange();
     };
     this.mediaQuery?.addEventListener('change', onChange);
+
+    const onSchemeChange = (event: MediaQueryListEvent) =>
+      this.systemTheme.set(event.matches ? 'dark' : 'light');
+    this.darkQuery?.addEventListener('change', onSchemeChange);
+
     inject(DestroyRef).onDestroy(() => {
       this.mediaQuery?.removeEventListener('change', onChange);
+      this.darkQuery?.removeEventListener('change', onSchemeChange);
       this.window?.cancelAnimationFrame(this.frame);
     });
 
@@ -70,6 +97,9 @@ export class LayoutService {
 
     const root = inject(DOCUMENT).documentElement;
     effect(() => (root.style.fontSize = `${this.fontSize()}px`));
+    // `_theme.scss` reads the attribute; writing it also pins the theme against later system
+    // changes once the user has chosen one.
+    effect(() => root.setAttribute('data-theme', this.theme()));
   }
 
   /** Re-enable transitions after two frames: one renders the new layout, the next is safe. */
@@ -106,6 +136,19 @@ export class LayoutService {
 
   resetFontSize(): void {
     this.fontSize.set(LAYOUT_DEFAULT_FONT_SIZE);
+  }
+
+  setTheme(theme: LayoutTheme): void {
+    this.chosenTheme.set(theme);
+  }
+
+  toggleTheme(): void {
+    this.setTheme(this.isDark() ? 'light' : 'dark');
+  }
+
+  /** Hands the theme back to the system preference. */
+  useSystemTheme(): void {
+    this.chosenTheme.set(null);
   }
 
   closeMobile(): void {

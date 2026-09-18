@@ -1,1 +1,5 @@
 @import 'tailwindcss';
+
+/* `dark:` follows LayoutService's `data-theme` attribute instead of the system preference
+   directly, so the top bar toggle drives Tailwind utilities too. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));

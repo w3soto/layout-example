@@ -1,4 +1,8 @@
 @use '../variables' as *;
+@use '../theme';
+
+// Emitted once, from the one component that is always present when the layout is used.
+@include theme.app-layout-theme;
 
 .main-layout {
   display: grid;

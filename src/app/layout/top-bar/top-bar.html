@@ -13,6 +13,21 @@
 <div class="top-bar__actions">
   <ng-content />
 
+  <button
+    type="button"
+    class="top-bar__theme-toggle"
+    [attr.aria-label]="layout.isDark() ? 'Switch to light theme' : 'Switch to dark theme'"
+    [attr.aria-pressed]="layout.isDark()"
+    (click)="layout.toggleTheme()"
+  >
+    <i
+      class="pi"
+      [class.pi-moon]="!layout.isDark()"
+      [class.pi-sun]="layout.isDark()"
+      aria-hidden="true"
+    ></i>
+  </button>
+
   <!-- Base font size: every layout token is in `rem`, so this scales the whole UI. -->
   <div class="top-bar__font-size" role="group" aria-label="Base font size">
     <button

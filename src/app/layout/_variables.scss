@@ -13,15 +13,15 @@ $app-layout-sidebar-overlay-width: 16rem !default;
 $app-layout-flyout-min-width: 16rem !default;
 
 // Spacing
-$app-layout-topbar-padding-x: .5rem !default;
+$app-layout-topbar-padding-x: 0.5rem !default;
 $app-layout-topbar-gap: 1rem !default;
 $app-layout-content-padding: 2rem !default;
 $app-layout-content-padding-mobile: 2rem !default;
 $app-layout-menu-padding: 0.5rem !default;
 $app-layout-item-padding-y: 0.75rem !default;
 $app-layout-item-padding-x: 0.75rem !default; //0.6875rem !default;
-$app-layout-item-gap: .75rem !default;
-$app-layout-item-margin-y: .75rem !default;
+$app-layout-item-gap: 0.75rem !default;
+$app-layout-item-margin-y: 0.75rem !default;
 $app-layout-subitem-padding-y: 0.84375rem !default;
 $app-layout-subitem-padding-x: 0.75rem !default; //0.6875rem !default;
 $app-layout-subitem-indent: 3rem !default;
@@ -41,28 +41,38 @@ $app-layout-icon-size: 1.5rem !default;
 $app-layout-separator-font-size: 0.6875rem !default;
 
 // Colors
-$app-layout-topbar-bg: #fdbfa4 !default;
-$app-layout-topbar-color: #fff !default;
-$app-layout-topbar-hover-bg: rgb(255 255 255 / 0.15) !default;
-$app-layout-sidebar-bg: #fff !default;
-$app-layout-sidebar-border: #e0e0e0 !default;
-$app-layout-header-bg: $app-layout-sidebar-bg !default;
-$app-layout-footer-bg: $app-layout-sidebar-bg !default;
-$app-layout-item-color: black !default;
-$app-layout-item-disabled-color: #94a3b8 !default;
-$app-layout-item-hover-bg: #fdbfa4 !default;
-$app-layout-item-hover-color: black !default;
-$app-layout-item-active-bg: #fd5108 !default;
-$app-layout-item-active-color: #fff !default;
-$app-layout-subitem-color: black !default;
-$app-layout-separator-color: $app-layout-sidebar-border !default;
-$app-layout-separator-label-color: #64748b !default;
-$app-layout-flyout-bg: #fff !default;
-$app-layout-flyout-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.12) !default;
-$app-layout-content-bg: #f8fafc !default;
-$app-layout-backdrop-bg: rgb(15 23 42 / 0.5) !default;
-$app-layout-scrollbar-thumb: #334155 !default;
-$app-layout-scrollbar-track: transparent !default;
+// Each color is a CSS custom property with the light value as its fallback, so a theme only has
+// to redefine the properties (see `_theme.scss`). Overriding one of these tokens through
+// `@use ... with (...)` replaces the whole reference and opts that color out of theming.
+$app-layout-topbar-bg: var(--app-layout-topbar-bg, #fdbfa4) !default;
+$app-layout-topbar-color: var(--app-layout-topbar-color, #fff) !default;
+$app-layout-topbar-hover-bg: var(--app-layout-topbar-hover-bg, rgb(255 255 255 / 0.15)) !default;
+$app-layout-sidebar-bg: var(--app-layout-sidebar-bg, #fff) !default;
+$app-layout-sidebar-border: var(--app-layout-sidebar-border, #e0e0e0) !default;
+$app-layout-header-bg: var(--app-layout-header-bg, #{$app-layout-sidebar-bg}) !default;
+$app-layout-footer-bg: var(--app-layout-footer-bg, #{$app-layout-sidebar-bg}) !default;
+$app-layout-item-color: var(--app-layout-item-color, black) !default;
+$app-layout-item-disabled-color: var(--app-layout-item-disabled-color, #94a3b8) !default;
+$app-layout-item-hover-bg: var(--app-layout-item-hover-bg, #fdbfa4) !default;
+$app-layout-item-hover-color: var(--app-layout-item-hover-color, black) !default;
+$app-layout-item-active-bg: var(--app-layout-item-active-bg, #fd5108) !default;
+$app-layout-item-active-color: var(--app-layout-item-active-color, #fff) !default;
+$app-layout-subitem-color: var(--app-layout-subitem-color, black) !default;
+$app-layout-separator-color: var(
+  --app-layout-separator-color,
+  #{$app-layout-sidebar-border}
+) !default;
+$app-layout-separator-label-color: var(--app-layout-separator-label-color, #64748b) !default;
+$app-layout-flyout-bg: var(--app-layout-flyout-bg, #fff) !default;
+$app-layout-flyout-shadow: var(
+  --app-layout-flyout-shadow,
+  0 0.5rem 1.5rem rgb(0 0 0 / 0.12)
+) !default;
+$app-layout-content-bg: var(--app-layout-content-bg, #f8fafc) !default;
+$app-layout-content-color: var(--app-layout-content-color, black) !default;
+$app-layout-backdrop-bg: var(--app-layout-backdrop-bg, rgb(15 23 42 / 0.5)) !default;
+$app-layout-scrollbar-thumb: var(--app-layout-scrollbar-thumb, #334155) !default;
+$app-layout-scrollbar-track: var(--app-layout-scrollbar-track, transparent) !default;
 
 // Shape & motion
 $app-layout-item-radius: 0.125rem !default;
