@@ -62,6 +62,9 @@
       inset-block: $app-layout-topbar-height 0;
       inset-inline-start: 0;
       z-index: $app-layout-sidebar-z-index;
+      // `inset-block` sizes the overlay; the menu's own `height: 100%` would resolve against
+      // the viewport instead and push the pinned footer below the screen edge.
+      height: auto;
       width: $app-layout-sidebar-overlay-width;
       max-width: 85vw;
       transform: translateX(-100%);

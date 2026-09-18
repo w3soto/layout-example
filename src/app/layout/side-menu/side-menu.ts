@@ -196,9 +196,27 @@ export class SideMenu {
       return;
     }
     const rect = li.getBoundingClientRect();
+    const row = li.querySelector<HTMLElement>(':scope > .side-menu__button-wrap');
+    const anchor = row ?? li;
+    // The panel's first entry carries the same vertical padding as the row, so lining up
+    // their top edges puts icon and label of both on the same line. Its distance from the
+    // flyout's own top (the panel's padding, borders, shadow spread) is measured rather than
+    // assumed, and holds while the flyout is still hidden.
+    const first = flyout.querySelector<HTMLElement>(
+      '.side-menu__submenu-title, .side-menu__subbutton',
+    );
+    const inset = first
+      ? first.getBoundingClientRect().top - flyout.getBoundingClientRect().top
+      : 0;
     const viewportHeight = li.ownerDocument.documentElement.clientHeight;
-    const margin = 16;
-    const top = Math.max(margin, Math.min(rect.top, viewportHeight - flyout.offsetHeight - margin));
+    // The viewport edges are the only limit: the last footer row sits just the panel's own
+    // padding above the bottom edge, so an aligned flyout ends flush with it and any extra
+    // safety margin would trade the alignment away. A flyout taller than the viewport is
+    // pinned to the top and scrolls off the bottom.
+    const top = Math.max(
+      0,
+      Math.min(anchor.getBoundingClientRect().top - inset, viewportHeight - flyout.offsetHeight),
+    );
     li.style.setProperty('--ml-flyout-top', `${top}px`);
     li.style.setProperty('--ml-flyout-left', `${rect.right}px`);
   }

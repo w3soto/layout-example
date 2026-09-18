@@ -229,8 +229,10 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
       background-color $app-layout-transition-duration $app-layout-transition-easing,
       color $app-layout-transition-duration $app-layout-transition-easing;
 
-    &:hover:not(.side-menu__subbutton--disabled),
-    &:focus-visible:not(.side-menu__subbutton--disabled) {
+    // The active sub item is excluded rather than overridden below: `&--active:hover` is the
+    // less specific selector of the two, so it would lose no matter where it sits in the file.
+    &:hover:not(.side-menu__subbutton--disabled, .side-menu__subbutton--active),
+    &:focus-visible:not(.side-menu__subbutton--disabled, .side-menu__subbutton--active) {
       background: $app-layout-item-hover-bg;
       color: $app-layout-item-hover-color;
     }
@@ -245,8 +247,7 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
       cursor: pointer;
     }
 
-    &--active,
-    &--active:hover {
+    &--active {
       background: $app-layout-item-active-bg;
       color: $app-layout-item-active-color;
     }
@@ -406,7 +407,6 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
       min-width: $app-layout-flyout-min-width;
       // Transparent padding bridges the gap to the sidebar edge so hover isn't lost.
       padding-inline-start: calc($app-layout-menu-padding + 0.5rem);
-      margin-top: -.75rem;
     }
 
     .side-menu__flyout-panel {
