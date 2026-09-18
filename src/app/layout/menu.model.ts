@@ -11,6 +11,9 @@ import {
  * - `separator: true` → separator (with `label` as optional caption),
  * - `routerLink` set → link (all `RouterLink` / `RouterLinkActive` options below are bound),
  * - otherwise → button (runs `command`; on the main level it also expands its `children`).
+ *
+ * `disabled: true` greys the entry out and blocks its action; an entry with sub items can still
+ * be expanded.
  */
 export interface SubMenuItemModel {
   /**
@@ -41,11 +44,22 @@ export interface SubMenuItemModel {
   routerLinkActiveOptions?: { exact: boolean } | Partial<IsActiveMatchOptions>;
   /** Define this item as separator */
   separator?: boolean;
+  /**
+   * Renders the entry inert: no navigation, no `command`, no `menuItemClick`. An entry with
+   * sub items can still be expanded, so its enabled sub items stay reachable.
+   */
+  disabled?: boolean;
 }
 
 /** Main-level entry; may hold one level of sub items. */
 export interface MenuItemModel extends SubMenuItemModel {
   children?: SubMenuItemModel[];
+  /**
+   * Initial expanded state of the sub items. It seeds `expandedMenuItems` when the entry first
+   * appears and again whenever the flag itself changes; in between the user owns the state and
+   * the flag is never written back.
+   */
+  expanded?: boolean;
 }
 
 /**

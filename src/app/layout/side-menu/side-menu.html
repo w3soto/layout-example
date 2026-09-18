@@ -49,8 +49,10 @@
     @let open = isOpen(item);
     @let hasChildren = !!item.children?.length;
     @let isLink = !!item.routerLink;
+    @let disabled = !!item.disabled;
     <li
       class="side-menu__list-item"
+      [class.side-menu__list-item--disabled]="disabled"
       [class.side-menu__list-item--open]="open"
       [class.side-menu__list-item--active]="isChildActive(item)"
       [class.side-menu__list-item--flyout-closed]="closedFlyout() === item"
@@ -63,7 +65,10 @@
       @if (isLink) {
         <a
           class="side-menu__button"
-          [routerLink]="item.routerLink"
+          [class.side-menu__button--disabled]="disabled"
+          [attr.aria-disabled]="disabled || null"
+          [attr.tabindex]="disabled ? -1 : null"
+          [routerLink]="disabled ? null : item.routerLink"
           [queryParams]="item.queryParams"
           [queryParamsHandling]="item.queryParamsHandling"
           [fragment]="item.fragment"
@@ -100,6 +105,9 @@
         <button
           type="button"
           class="side-menu__button"
+          [class.side-menu__button--disabled]="disabled"
+          [attr.aria-disabled]="disabled || null"
+          [disabled]="disabled && !hasChildren"
           [attr.aria-expanded]="hasChildren && !mini() ? open : null"
           [attr.aria-controls]="hasChildren ? submenuId(item) : null"
           [attr.aria-label]="mini() ? item.label : null"
@@ -131,8 +139,9 @@
           </div>
         </div>
       }
-      @if (mini()) {
-        <!-- Mini mode flyout: title + sub items, or just a clickable label. -->
+      @if (mini() && (hasChildren || !disabled)) {
+        <!-- Mini mode flyout: title + sub items, or just a clickable label. A disabled item
+             without sub items has nothing to offer, so it doesn't react to hover at all. -->
         <div
           class="side-menu__flyout"
           [class.side-menu__flyout--label]="!hasChildren"
@@ -169,7 +178,10 @@
         <li class="side-menu__sublist-item">
           <a
             class="side-menu__subbutton"
-            [routerLink]="child.routerLink"
+            [class.side-menu__subbutton--disabled]="child.disabled"
+            [attr.aria-disabled]="child.disabled || null"
+            [attr.tabindex]="child.disabled ? -1 : null"
+            [routerLink]="child.disabled ? null : child.routerLink"
             [queryParams]="child.queryParams"
             [queryParamsHandling]="child.queryParamsHandling"
             [fragment]="child.fragment"
@@ -193,6 +205,9 @@
           <button
             type="button"
             class="side-menu__subbutton side-menu__subbutton--button"
+            [class.side-menu__subbutton--disabled]="child.disabled"
+            [attr.aria-disabled]="child.disabled || null"
+            [disabled]="!!child.disabled"
             (click)="onItemClick(child, $event)"
           >
             <ng-container *ngTemplateOutlet="subContent; context: { $implicit: child }"/>
@@ -214,7 +229,9 @@
   @if (item.routerLink) {
     <a
       class="side-menu__submenu-title side-menu__submenu-title--link"
-      [routerLink]="item.routerLink"
+      [class.side-menu__submenu-title--disabled]="item.disabled"
+      [attr.aria-disabled]="item.disabled || null"
+      [routerLink]="item.disabled ? null : item.routerLink"
       [queryParams]="item.queryParams"
       [queryParamsHandling]="item.queryParamsHandling"
       [fragment]="item.fragment"
@@ -228,7 +245,7 @@
       [target]="item.target"
       routerLinkActive="side-menu__submenu-title--active"
       [routerLinkActiveOptions]="activeOptions(item, true)"
-      [attr.tabindex]="tabindex"
+      [attr.tabindex]="item.disabled ? -1 : tabindex"
       (click)="onItemClick(item, $event)"
     >{{ item.label }}</a
     >

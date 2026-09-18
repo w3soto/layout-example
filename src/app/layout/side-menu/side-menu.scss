@@ -79,8 +79,8 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
 
   // Hover only on the row itself: the submenu/flyout are also descendants of the item,
   // so `:hover` on the item would light the parent row up while a sub item is hovered.
-  &__list-item > &__button-wrap:hover,
-  &__list-item:has(> &__button-wrap :focus-visible) > &__button-wrap {
+  &__list-item:not(&__list-item--disabled) > &__button-wrap:hover,
+  &__list-item:not(&__list-item--disabled):has(> &__button-wrap :focus-visible) > &__button-wrap {
     background: $app-layout-item-hover-bg;
     color: $app-layout-item-hover-color;
   }
@@ -229,8 +229,8 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
       background-color $app-layout-transition-duration $app-layout-transition-easing,
       color $app-layout-transition-duration $app-layout-transition-easing;
 
-    &:hover,
-    &:focus-visible {
+    &:hover:not(.side-menu__subbutton--disabled),
+    &:focus-visible:not(.side-menu__subbutton--disabled) {
       background: $app-layout-item-hover-bg;
       color: $app-layout-item-hover-color;
     }
@@ -306,8 +306,11 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
   &__submenu-title {
     border-radius: $app-layout-item-radius;
 
-    &--link:hover:not(.side-menu__submenu-title--active),
-    &--link:focus-visible:not(.side-menu__submenu-title--active) {
+    &--link:hover:not(.side-menu__submenu-title--active, .side-menu__submenu-title--disabled),
+    &--link:focus-visible:not(
+        .side-menu__submenu-title--active,
+        .side-menu__submenu-title--disabled
+      ) {
       background: $app-layout-item-hover-bg;
     }
 
@@ -376,7 +379,7 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
     }
 
     // In mini mode the flyout belongs to its icon, so keep the icon lit while it is hovered.
-    .side-menu__list-item:hover > .side-menu__button-wrap {
+    .side-menu__list-item:not(.side-menu__list-item--disabled):hover > .side-menu__button-wrap {
       background: $app-layout-item-hover-bg;
       color: $app-layout-item-hover-color;
     }
@@ -438,6 +441,34 @@ $mini-link-padding-x: calc(($app-layout-sidebar-mini-width - 2 * $app-layout-men
         transition-delay: 0s;
       }
     }
+  }
+
+  // Disabled entries: muted and inert on every level and in both modes. Last in the file so it
+  // wins over the base row/sub item/flyout rules; a container's chevron stays usable.
+  &__button--disabled,
+  &__subbutton--disabled,
+  &__submenu-title--disabled {
+    color: $app-layout-item-disabled-color;
+    cursor: default;
+  }
+
+  // Not even an active sub item lights up while it is disabled.
+  &__subbutton--disabled,
+  &__subbutton--disabled:hover,
+  &__subbutton--disabled:focus-visible,
+  &__submenu-title--disabled:hover,
+  &__submenu-title--disabled:focus-visible {
+    background: transparent;
+    color: $app-layout-item-disabled-color;
+  }
+
+  // A disabled entry stays muted even when it is the active route, in both modes.
+  &__list-item--disabled > &__button-wrap,
+  &__list-item--disabled > &__button-wrap:has(> &__button--disabled),
+  &--mini &__list-item--disabled > &__button-wrap,
+  &--mini &__list-item--disabled &__button--disabled {
+    background: transparent;
+    color: $app-layout-item-disabled-color;
   }
 
   @media (prefers-reduced-motion: reduce) {

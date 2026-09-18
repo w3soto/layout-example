@@ -64,7 +64,10 @@ export class SideMenu {
   readonly mini = model(false);
   /** In mini mode, hide a flyout once one of its links is clicked (until the pointer leaves). */
   readonly closeFlyoutOnClick = input(true);
-  /** Ids of expanded items (expanded mode); several can be open at once. Supports two-way binding. */
+  /**
+   * Ids of expanded items (expanded mode); several can be open at once. Supports two-way binding.
+   * Seeded by each item's `expanded` flag and by `autoExpand`.
+   */
   readonly expandedMenuItems = model<string[]>([]);
   /** Which URL match auto-expands an item with sub items (see `MenuAutoExpand`). */
   readonly autoExpand = input<MenuAutoExpand>('prefix');
@@ -97,6 +100,13 @@ export class SideMenu {
   /** Expanded state of items without an `id` (they can't be listed in `expandedMenuItems`). */
   private readonly expandedWithoutId = signal<ReadonlySet<MenuItemModel>>(new Set());
 
+  /**
+   * Last `expanded` flag seen per item; the flag is applied again whenever it changes. Keyed like
+   * the expanded state itself: by `id`, or by object identity for entries without one.
+   */
+  private readonly seenExpandedById = new Map<string, boolean>();
+  private readonly seenExpanded = new WeakMap<MenuItemModel, boolean>();
+
   /** Generated DOM ids of the inline submenus. */
   private readonly submenuIds = new WeakMap<MenuItemModel, string>();
 
@@ -104,6 +114,32 @@ export class SideMenu {
   protected readonly closedFlyout = signal<MenuItemModel | null>(null);
 
   constructor() {
+    // Apply each item's `expanded` flag: when the item first appears, and again whenever the
+    // flag changes. In between the user owns the state, so the flag is only read, never written.
+    effect(() => {
+      const menu = [...this.headerItems(), ...this.items(), ...this.footerItems()];
+      untracked(() => {
+        for (const item of menu) {
+          if (item.separator || !item.children?.length) {
+            continue;
+          }
+          const expanded = !!item.expanded;
+          const seen = this.seenExpandedFlag(item);
+          if (seen === expanded) {
+            continue;
+          }
+          this.markExpandedFlagSeen(item, expanded);
+          // On first sight only `true` acts, so a missing flag doesn't fight `autoExpand`.
+          if (seen === undefined && !expanded) {
+            continue;
+          }
+          if (expanded !== this.isOpen(item)) {
+            this.toggle(item);
+          }
+        }
+      });
+    });
+
     // Expand the items whose sub item matches the current URL (per `autoExpand`).
     effect(() => {
       const matched: MenuItemModel[] = [];
@@ -168,6 +204,12 @@ export class SideMenu {
   }
 
   protected onItemClick(item: MenuItemModel | SubMenuItemModel, event: MouseEvent): void {
+    // Anchors can't be disabled natively, so block the click here for every kind of entry.
+    if (item.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     item.command?.(event);
     this.menuItemClick.emit({ item, event });
   }
@@ -182,6 +224,9 @@ export class SideMenu {
   protected onFlyoutClick(item: MenuItemModel, event: MouseEvent): void {
     // Only links and sub item buttons close the flyout; a button item's title is plain text.
     const trigger = (event.target as Element).closest('a, button');
+    if (trigger?.getAttribute('aria-disabled') === 'true') {
+      return;
+    }
     if (trigger && this.mini() && this.closeFlyoutOnClick()) {
       this.closedFlyout.set(item);
     }
@@ -194,6 +239,20 @@ export class SideMenu {
     const li = event.currentTarget as HTMLElement;
     if (this.closedFlyout() === item && !ignore && !li.contains(target)) {
       this.closedFlyout.set(null);
+    }
+  }
+
+  private seenExpandedFlag(item: MenuItemModel): boolean | undefined {
+    const id = item.id;
+    return id === undefined ? this.seenExpanded.get(item) : this.seenExpandedById.get(id);
+  }
+
+  private markExpandedFlagSeen(item: MenuItemModel, expanded: boolean): void {
+    const id = item.id;
+    if (id === undefined) {
+      this.seenExpanded.set(item, expanded);
+    } else {
+      this.seenExpandedById.set(id, expanded);
     }
   }
 

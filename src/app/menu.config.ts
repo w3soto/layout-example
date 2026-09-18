@@ -44,6 +44,7 @@ export const MENU: MenuItemModel[] = [
     label: 'Clients',
     icon: 'pi pi-building',
     routerLink: '/workspace/1/clients',
+    disabled: true,
   },
   {
     id: 'wsInvoices',
@@ -60,6 +61,7 @@ export const MENU: MenuItemModel[] = [
     label: 'Administration',
     icon: 'pi pi-cog',
     //routerLink: '/management',
+    expanded: true,
     children: [
       {
         id: 'workspaceManagement',
@@ -70,6 +72,7 @@ export const MENU: MenuItemModel[] = [
         id: 'administrators',
         label: 'Administrators',
         routerLink: '/management/administrators',
+        disabled: true,
       },
     ],
   },
