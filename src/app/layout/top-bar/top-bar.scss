@@ -45,6 +45,46 @@
     margin-inline-start: auto;
   }
 
+  &__font-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__font-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: $app-layout-item-radius;
+    background: transparent;
+    color: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color $app-layout-transition-duration $app-layout-transition-easing;
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+      background: $app-layout-topbar-hover-bg;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+
+  &__font-value {
+    // px, not rem: the readout would otherwise resize itself on every click and shift the
+    // buttons under the pointer.
+    min-width: 40px;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+
   &__user {
     display: inline-flex;
     align-items: center;

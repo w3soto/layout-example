@@ -12,6 +12,30 @@
 
 <div class="top-bar__actions">
   <ng-content />
+
+  <!-- Base font size: every layout token is in `rem`, so this scales the whole UI. -->
+  <div class="top-bar__font-size" role="group" aria-label="Base font size">
+    <button
+      type="button"
+      class="top-bar__font-button"
+      aria-label="Decrease font size"
+      [disabled]="!layout.canShrinkFont()"
+      (click)="layout.changeFontSize(-1)"
+    >
+      <i class="pi pi-minus" aria-hidden="true"></i>
+    </button>
+    <!-- Fixed px, so the readout doesn't resize itself while it is being used. -->
+    <output class="top-bar__font-value" aria-live="polite">{{ layout.fontSize() }}px</output>
+    <button
+      type="button"
+      class="top-bar__font-button"
+      aria-label="Increase font size"
+      [disabled]="!layout.canGrowFont()"
+      (click)="layout.changeFontSize(1)"
+    >
+      <i class="pi pi-plus" aria-hidden="true"></i>
+    </button>
+  </div>
   @if (userName()) {
     <span class="top-bar__user">
       <i class="top-bar__user-icon pi pi-user" aria-hidden="true"></i>
